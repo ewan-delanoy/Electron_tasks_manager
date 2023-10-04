@@ -1,5 +1,3 @@
-import {BrowserWindow} from "electron";
-import path from "path";
 
 class TaskUtil {
 
@@ -7,13 +5,14 @@ class TaskUtil {
 
    constructor() {
     this.tasks = [];
+    this.#initDefaultTasks();
    }
 
    addNewTask(task) {  
     this.tasks.push(task);
    }
 
-   _initDefaultTasks() {
+   #initDefaultTasks() {
         this.addNewTask({
             label : 'Apprendre NodeJS',
             description : 'Apprendre les bases de NodeJS & Express',

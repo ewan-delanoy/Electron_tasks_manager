@@ -1,6 +1,6 @@
-import {BrowserWindow} from "electron";
-import path from "path";
-/* import TaskUtil = require ('./TaskUtil'); */
+const {BrowserWindow, ipcMain} = require('electron');
+const path= require ('path');
+const TaskUtil = require ('./TaskUtil'); 
 
 class WindowUtil {
 
@@ -10,7 +10,41 @@ class WindowUtil {
     this.views = {};
    }
 
-    createWindow(viewName,initListenersFct=undefined,removeListenersFct=undefined,initialData=undefined,width =1400,height = 1000) {
+    
+
+createHomeView() {
+
+    
+    const openNewTaskViewCB = () => {
+        if('newTaskView' in this.views) {
+            this.views.newTaskView.focus();
+        }    
+        this.views.newTaskView = this.#createWindow('new-task');
+        this.views.newTaskView.on('closed', () => this.views.newTaskView = undefined);
+    }
+    
+    const addNewTaskCb =  (e,newTask) => {
+            TaskUtil.addNewTask(newTask);
+            this.views.homeView.send('show-new-task',newTask);
+            return true;
+    };
+
+    const initListenersFct = () => {
+        ipcMain.on('open-new-task-view',openNewTaskViewCB);
+        ipcMain.handle('add-new-task', addNewTaskCb);
+    }
+
+    const removeListenersFct = () => {
+        ipcMain.removeListener('open-new-task-view',openNewTaskViewCB);
+        ipcMain.removeHandler('add-new-task');
+    }
+
+    this.views.homeView = this.#createWindow('home',initListenersFct, removeListenersFct,TaskUtil.tasks);
+    this.views.homeView.on('closed', () => this.views.homeView = undefined);
+
+}
+
+#createWindow(viewName,initListenersFct=undefined,removeListenersFct=undefined,initialData=undefined,width =1400,height = 1000) {
     const win = new BrowserWindow({
         width,
         height,
@@ -27,12 +61,12 @@ class WindowUtil {
         }
     });
 
-    const viewPath = path.join(__dirname, '..', '..', 'src', 'views', viewName, viewName + '.html') ; 
+    const viewPath = path.join(__dirname, '..', '..', 'src', 'views', viewName, `${viewName}.html`) ; 
 
     win.loadFile(viewPath)
     .then(() => {
         if(initialData) {
-            win.send('init-data',viewData);
+            win.send('init-data',initialData);
         } 
     });
 
@@ -47,25 +81,7 @@ class WindowUtil {
 
 }
 
-createHomeView() {
-
-    const sendMyMoodCB = () => {
-        if('newTaskView' in this.views) this.views.newTaskView.close();
-        this.views.newTaskView = this.createWindow('new-task',undefined,undefined,'En pleine digestion',300,300);
-        this.views.newTaskView.on('closed', () => this.views.newTaskView = undefined);
-    }
-
-    const initListenersFct = () => {
-        // ipcMain.on('sendMyMood',sendMyMoodCB);
-    }
-
-    const removeListenersFct = () => {
-        // ipcMain.removeListener('sendMyMood',sendMyMoodCB);
-    }
-
-    this.views.homeView = this.createWindow('home',initListenerFct, removeListenerFct);
-    this.views.homeView.on('closed', () => this.views.homeView = undefined);
 
 }
 
-}
+module.exports = new WindowUtil ();
