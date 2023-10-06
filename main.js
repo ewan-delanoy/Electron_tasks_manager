@@ -1,4 +1,4 @@
-const {app, picMain, BrowserWindow} = require('electron');
+const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const WindowUtil = require('./app/class/WindowUtil');
 
@@ -8,11 +8,11 @@ app.whenReady().
         WindowUtil.createHomeView();
     });
 
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            WindowUtil.createHomeView();
-        }
-    });
+app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+        WindowUtil.createHomeView();
+    }
+});
 
 
 app.on('window-all-closed', () => {
@@ -20,4 +20,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
- 
