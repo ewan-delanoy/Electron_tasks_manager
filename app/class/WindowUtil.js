@@ -1,4 +1,4 @@
-const {BrowserWindow, ipcMain} = require('electron');
+const {BrowserWindow, ipcMain, dialog} = require('electron');
 const path= require ('path');
 const TaskUtil = require ('./TaskUtil'); 
 
@@ -29,14 +29,30 @@ createHomeView() {
             return true;
     };
 
+    const askDeleteTaskCb =  (e,idTask) => {
+        const choice = dialog.showMessageBoxSync({
+            type:'warning',
+            buttons: ['Non','Oui'], // [0,1] en javascript
+            title : 'Confirmation de supression',
+            message : 'Êtes-vous sûr de vouloir supprimer cet élément ?' 
+        })
+        if(choice) {
+            TaskUtil.removeTask(idTask)
+        }
+        return choice;
+};
+
+
     const initListenersFct = () => {
         ipcMain.on('open-new-task-view',openNewTaskViewCB);
         ipcMain.handle('add-new-task', addNewTaskCb);
+        ipcMain.handle('ask-delete-task', askDeleteTaskCb);
     }
 
     const removeListenersFct = () => {
         ipcMain.removeListener('open-new-task-view',openNewTaskViewCB);
         ipcMain.removeHandler('add-new-task');
+        ipcMain.removeHandler('ask-delete-task');
     }
 
     this.views.homeView = this.#createWindow('home',initListenersFct, removeListenersFct,TaskUtil.tasks);

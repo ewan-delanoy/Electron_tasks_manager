@@ -9,7 +9,18 @@ class TaskUtil {
    }
 
    addNewTask(task) {  
+    task.id = this.tasks.length ? this.tasks[this.tasks.length -1].id + 1 : 1;
     this.tasks.push(task);
+   }
+
+   removeTask(idTask) {  
+    /* for(const [i,v] of this.tasks.entries()) {
+        if(v.id === idTask) {
+            this.tasks.splice(i,1)
+            break
+        }
+    } */
+    this.tasks=this.tasks.filter(t => t.id !== idTask);
    }
 
    #initDefaultTasks() {

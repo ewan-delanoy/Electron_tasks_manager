@@ -2,17 +2,34 @@
 
 function generateTaskRow(task) {
     const row = document.createElement('tr');
-    const labelDiv = document.createElement('td');
-    labelDiv.textContent = task.label ;
-    row.appendChild(labelDiv);
+    const labelTd = document.createElement('td');
+    labelTd.textContent = task.label ;
+    row.appendChild(labelTd);
 
-    const descriptionDiv = document.createElement('td');
-    descriptionDiv.textContent = task.description;
-    row.appendChild(descriptionDiv);
+    const descriptionTd = document.createElement('td');
+    descriptionTd.textContent = task.description;
+    row.appendChild(descriptionTd);
 
-    const statusDiv = document.createElement('td');
-    statusDiv.textContent = task.status ? 'Terminée' : 'En cours';
-    row.appendChild(statusDiv);
+    const statusTd = document.createElement('td');
+    statusTd.textContent = task.status ? 'Terminée' : 'En cours';
+    row.appendChild(statusTd);
+
+    const actionsTd = document.createElement('td')
+    const deleteBtn = document.createElement('button')
+    deleteBtn.textContent = 'SUPPR.'
+    deleteBtn.classList.add('btn','btn-danger')
+    deleteBtn.addEventListener('click', () => {
+         // Envoyer un message
+         // puis effacer la ligne du tableau 
+         window.ipcRenderer.invokeAskDeleteTask(task.id, (isDeleted) => {
+            if(isDeleted) {
+                row.remove();
+            }
+         });
+    })
+    actionsTd.appendChild(deleteBtn)
+    row.appendChild(actionsTd)
+
 
     document.querySelector('#tasks-tbody').appendChild(row);
 

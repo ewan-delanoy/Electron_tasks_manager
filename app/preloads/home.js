@@ -1,7 +1,14 @@
 const {contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld ('ipcRenderer',{
-  'onceInitData':(cb) => {
+  
+  'invokeAskDeleteTask':(idTask,cb) => {
+    ipcRenderer
+    .invoke('ask-delete-task', idTask)
+    .then(cb)
+    ;
+
+ },'onceInitData':(cb) => {
      ipcRenderer.once('init-data', cb);
 
   },
